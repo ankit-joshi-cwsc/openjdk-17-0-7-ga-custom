@@ -347,8 +347,7 @@ Java_sun_lwawt_macosx_CRobot_nativeGetScreenPixels
     CHECK_NULL(jPixelData);
 
     // create a graphics context around the Java int array
-    CGColorSpaceRef picColorSpace = CGColorSpaceCreateWithName(
-                                            kCGColorSpaceSRGB);
+    CGColorSpaceRef picColorSpace = CGImageGetColorSpace(screenPixelsImage);
     CGContextRef jPicContextRef = CGBitmapContextCreate(
                                             jPixelData,
                                             picWidth, picHeight,
@@ -356,8 +355,6 @@ Java_sun_lwawt_macosx_CRobot_nativeGetScreenPixels
                                             picColorSpace,
                                             kCGBitmapByteOrder32Host |
                                             kCGImageAlphaPremultipliedFirst);
-
-    CGColorSpaceRelease(picColorSpace);
 
     // flip, scale, and color correct the screen image into the Java pixels
     CGRect bounds = { { 0, 0 }, { picWidth, picHeight } };
