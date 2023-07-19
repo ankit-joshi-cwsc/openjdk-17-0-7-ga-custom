@@ -280,12 +280,7 @@ static jclass sjc_AppEventHandler = NULL;
 #define GET_APPEVENTHANDLER_CLASS_RETURN(ret) \
     GET_CLASS_RETURN(sjc_AppEventHandler, "com/apple/eawt/_AppEventHandler", ret);
 
-- (void)_handleOpenURLEvent:(NSAppleEventDescriptor *)openURLEvent withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
-AWT_ASSERT_APPKIT_THREAD;
-    if (!fHandlesURLTypes) return;
-
-    NSString *url = [[openURLEvent paramDescriptorForKeyword:keyDirectObject] stringValue];
-
+- (void)_openURL:(NSString *)url {
     //fprintf(stderr,"jm_handleOpenURL\n");
     JNIEnv *env = [ThreadUtilities getJNIEnv];
     jstring jURL = NSStringToJavaString(env, url);
@@ -294,6 +289,15 @@ AWT_ASSERT_APPKIT_THREAD;
     (*env)->CallStaticVoidMethod(env, sjc_AppEventHandler, jm_handleOpenURI, jURL);
     CHECK_EXCEPTION();
     (*env)->DeleteLocalRef(env, jURL);
+}
+
+- (void)_handleOpenURLEvent:(NSAppleEventDescriptor *)openURLEvent withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
+AWT_ASSERT_APPKIT_THREAD;
+    if (!fHandlesURLTypes) return;
+
+    NSString *url = [[openURLEvent paramDescriptorForKeyword:keyDirectObject] stringValue];
+
+    [self _openURL:url];
 
     [replyEvent insertDescriptor:[NSAppleEventDescriptor nullDescriptor] atIndex:0];
 }
