@@ -185,6 +185,8 @@ Java_sun_lwawt_macosx_CRobot_mouseEvent
     __block CGMouseButton button = kCGMouseButtonLeft;
     __block CGEventType type = kCGEventMouseMoved;
 
+    boolean_t leftButtonDown = FALSE, rightButtonDown = FALSE, centerButtonDown = FALSE;
+
     void (^HandleRobotButton)(CGMouseButton, CGEventType, CGEventType, CGEventType) =
         ^(CGMouseButton cgButton, CGEventType cgButtonUp, CGEventType cgButtonDown,
           CGEventType cgButtonDragged) {
@@ -205,6 +207,7 @@ Java_sun_lwawt_macosx_CRobot_mouseEvent
     if (buttonsState & java_awt_event_InputEvent_BUTTON1_MASK ||
         buttonsState & java_awt_event_InputEvent_BUTTON1_DOWN_MASK ) {
 
+        leftButtonDown = TRUE;
         HandleRobotButton(kCGMouseButtonLeft, kCGEventLeftMouseUp,
                           kCGEventLeftMouseDown, kCGEventLeftMouseDragged);
     }
@@ -213,6 +216,7 @@ Java_sun_lwawt_macosx_CRobot_mouseEvent
     if (buttonsState & java_awt_event_InputEvent_BUTTON2_MASK ||
         buttonsState & java_awt_event_InputEvent_BUTTON2_DOWN_MASK ) {
 
+        centerButtonDown = TRUE;
         HandleRobotButton(kCGMouseButtonCenter, kCGEventOtherMouseUp,
                           kCGEventOtherMouseDown, kCGEventOtherMouseDragged);
     }
@@ -221,6 +225,7 @@ Java_sun_lwawt_macosx_CRobot_mouseEvent
     if (buttonsState & java_awt_event_InputEvent_BUTTON3_MASK ||
         buttonsState & java_awt_event_InputEvent_BUTTON3_DOWN_MASK ) {
 
+        rightButtonDown = TRUE;
         HandleRobotButton(kCGMouseButtonRight, kCGEventRightMouseUp,
                           kCGEventRightMouseDown, kCGEventRightMouseDragged);
     }
@@ -251,7 +256,12 @@ Java_sun_lwawt_macosx_CRobot_mouseEvent
         eventNumber = gsButtonEventNumber[button];
     }
 
-    PostMouseEvent(point, button, type, clickCount, eventNumber);
+    // HACK use deprecated CGPostMouseEvent at login window because CGEventCreateMouseEvent/CGEventPost doesn't work
+    CFDictionaryRef sessionInfoDictionary = CGSessionCopyCurrentDictionary();
+    if (sessionInfoDictionary != NULL && CFDictionaryGetValue(sessionInfoDictionary, kCGSessionLoginDoneKey) == kCFBooleanFalse)
+        CGPostMouseEvent(point, TRUE, 3, leftButtonDown, rightButtonDown, centerButtonDown); // Ignore extra buttons because can't make array into varargs
+    else
+        PostMouseEvent(point, button, type, clickCount, eventNumber);
 
     JNI_COCOA_EXIT(env);
 }

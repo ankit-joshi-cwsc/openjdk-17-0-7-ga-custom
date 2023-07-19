@@ -209,41 +209,7 @@ JNI_COCOA_EXIT(env);
 JNIEXPORT jobject JNICALL Java_sun_lwawt_macosx_CInputMethod_getNativeLocale
 (JNIEnv *env, jobject this)
 {
-    if (!inputMethodController) return NULL;
-    jobject returnValue = 0;
-    __block NSString *isoAbbreviation;
-JNI_COCOA_ENTER(env);
-
-    [ThreadUtilities performOnMainThreadWaiting:YES block:^(){
-        isoAbbreviation = (NSString *) [inputMethodController performSelector:@selector(currentInputMethodLocale)];
-        [isoAbbreviation retain];
-    }];
-
-    if (isoAbbreviation == nil) return NULL;
-
-    static NSString *sLastKeyboardStr = nil;
-    static jobject sLastKeyboardLocaleObj = NULL;
-
-    if (![isoAbbreviation isEqualTo:sLastKeyboardStr]) {
-        [sLastKeyboardStr release];
-        sLastKeyboardStr = [isoAbbreviation retain];
-        jobject localObj = CreateLocaleObjectFromNSString(env, isoAbbreviation);
-        [isoAbbreviation release];
-
-        if (sLastKeyboardLocaleObj) {
-            (*env)->DeleteGlobalRef(env, sLastKeyboardLocaleObj);
-            sLastKeyboardLocaleObj = NULL;
-        }
-        if (localObj != NULL) {
-            sLastKeyboardLocaleObj = (*env)->NewGlobalRef(env, localObj);
-            (*env)->DeleteLocalRef(env, localObj);
-        }
-    }
-
-    returnValue = sLastKeyboardLocaleObj;
-
-JNI_COCOA_EXIT(env);
-    return returnValue;
+    return NULL;
 }
 
 
@@ -287,44 +253,5 @@ JNIEXPORT void JNICALL Java_sun_lwawt_macosx_CInputMethodDescriptor_nativeInit
 JNIEXPORT jobject JNICALL Java_sun_lwawt_macosx_CInputMethodDescriptor_nativeGetAvailableLocales
 (JNIEnv *env, jclass klass)
 {
-    DECLARE_CLASS_RETURN(jc_arrayListClass, "java/util/ArrayList", NULL);
-    DECLARE_METHOD_RETURN(jm_arrayListCons, jc_arrayListClass, "<init>", "()V", NULL);
-    DECLARE_METHOD_RETURN(jm_listAdd, jc_arrayListClass, "add", "(Ljava/lang/Object;)Z", NULL);
-    DECLARE_METHOD_RETURN(jm_listContains, jc_arrayListClass, "contains", "(Ljava/lang/Object;)Z", NULL);
-
-    if (!inputMethodController) return NULL;
-    jobject returnValue = 0;
-
-    __block NSArray *selectableArray = nil;
-JNI_COCOA_ENTER(env);
-
-    [ThreadUtilities performOnMainThreadWaiting:YES block:^(){
-        selectableArray = (NSArray *)[inputMethodController performSelector:@selector(availableInputMethodLocales)];
-        [selectableArray retain];
-    }];
-
-    if (selectableArray == nil) return NULL;
-
-     // Create an ArrayList to return back to the caller.
-    returnValue = (*env)->NewObject(env, jc_arrayListClass, jm_arrayListCons);
-    CHECK_EXCEPTION_NULL_RETURN(returnValue, NULL);
-
-    for(NSString *locale in selectableArray) {
-        jobject localeObj = CreateLocaleObjectFromNSString(env, locale);
-        if (localeObj == NULL) {
-            break;
-        }
-
-        if ((*env)->CallBooleanMethod(env, returnValue, jm_listContains, localeObj) == JNI_FALSE) {
-            if ((*env)->ExceptionOccurred(env)) (*env)->ExceptionClear(env);
-            (*env)->CallBooleanMethod(env, returnValue, jm_listAdd, localeObj);
-        }
-        if ((*env)->ExceptionOccurred(env)) (*env)->ExceptionClear(env);
-
-        (*env)->DeleteLocalRef(env, localeObj);
-    }
-    [selectableArray release];
-JNI_COCOA_EXIT(env);
-    return returnValue;
+    return NULL;
 }
-
