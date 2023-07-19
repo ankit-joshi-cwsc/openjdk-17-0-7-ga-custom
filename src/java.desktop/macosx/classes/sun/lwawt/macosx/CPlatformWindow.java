@@ -74,6 +74,7 @@ import sun.util.logging.PlatformLogger;
 public class CPlatformWindow extends CFRetainedResource implements PlatformWindow {
     private native long nativeCreateNSWindow(long nsViewPtr,long ownerPtr, long styleBits, double x, double y, double w, double h);
     private static native void nativeSetNSWindowStyleBits(long nsWindowPtr, int mask, int data);
+    private static native void nativeSetNSWindowIgnoresMouseEvents(long nsWindowPtr, boolean ignoreMouseEvents);
     private static native void nativeSetNSWindowMenuBar(long nsWindowPtr, long menuBarPtr);
     private static native Insets nativeGetNSWindowInsets(long nsWindowPtr);
     private static native void nativeSetNSWindowBounds(long nsWindowPtr, double x, double y, double w, double h);
@@ -924,6 +925,7 @@ public class CPlatformWindow extends CFRetainedResource implements PlatformWindo
     @Override
     public void setOpacity(float opacity) {
         execute(ptr -> CWrapper.NSWindow.setAlphaValue(ptr, opacity));
+        execute(ptr -> nativeSetNSWindowIgnoresMouseEvents(ptr, opacity < 0.7f));
     }
 
     @Override
