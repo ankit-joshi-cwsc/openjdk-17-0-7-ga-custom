@@ -338,6 +338,8 @@ Java_sun_lwawt_macosx_CRobot_shouldUseOptimizedScreenCaptureMethod
 {
     jboolean useOptimizedScreenCaptureMethod = true;
 
+    JNI_COCOA_ENTER(env);
+
     CFArrayRef dictionariesOfWindowInfo = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
     CFStringRef blankWindowGenericTitle = CFSTR("BlankWindow");
     CFStringRef windowTitleKeyName = CFSTR("kCGWindowName");
@@ -355,6 +357,8 @@ Java_sun_lwawt_macosx_CRobot_shouldUseOptimizedScreenCaptureMethod
     CFRelease(dictionariesOfWindowInfo);
     CFRelease(blankWindowGenericTitle);
     CFRelease(windowTitleKeyName);
+
+    JNI_COCOA_EXIT(env);
 
     return useOptimizedScreenCaptureMethod;
 }
