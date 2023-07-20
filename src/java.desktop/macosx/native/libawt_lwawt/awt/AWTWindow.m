@@ -1213,14 +1213,14 @@ JNI_COCOA_EXIT(env);
 JNIEXPORT void JNICALL Java_sun_lwawt_macosx_CPlatformWindow_nativeSetNSWindowIgnoresMouseEvents
 (JNIEnv *env, jclass clazz, jlong windowPtr, jboolean ignoreMouseEvents)
 {
-JNF_COCOA_ENTER(env);
+JNI_COCOA_ENTER(env);
 
     NSWindow *nsWindow = OBJC(windowPtr);
     [ThreadUtilities performOnMainThreadWaiting:NO block:^(){
         [nsWindow setIgnoresMouseEvents:ignoreMouseEvents];
     }];
 
-JNF_COCOA_EXIT(env);
+JNI_COCOA_EXIT(env);
 }
 
 /*
