@@ -341,22 +341,23 @@ Java_sun_lwawt_macosx_CRobot_shouldUseOptimizedScreenCaptureMethod
     JNI_COCOA_ENTER(env);
 
     CFArrayRef dictionariesOfWindowInfo = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
-    CFStringRef blankWindowGenericTitle = CFSTR("BlankWindow");
+    CFStringRef blankMonitorWindowGenericTitle = CFSTR("BlankMonitorWindow");
     CFStringRef windowTitleKeyName = CFSTR("kCGWindowName");
     CFTypeRef currentWindowTitle;
 
-    int counter;
-    for (counter = 0; counter < CFArrayGetCount(dictionariesOfWindowInfo); counter++) {
-        if (CFDictionaryGetValueIfPresent(CFArrayGetValueAtIndex(dictionariesOfWindowInfo, counter), windowTitleKeyName, &currentWindowTitle) &&
-        CFStringFindWithOptions((CFStringRef)currentWindowTitle, blankWindowGenericTitle, CFRangeMake(0, CFStringGetLength((CFStringRef)currentWindowTitle)), kCFCompareCaseInsensitive, NULL)) {
+    for (CFIndex counter = 0; counter < CFArrayGetCount(dictionariesOfWindowInfo); counter++) {
+        if (
+            CFDictionaryGetValueIfPresent((CFDictionaryRef)CFArrayGetValueAtIndex(dictionariesOfWindowInfo, counter), windowTitleKeyName, &currentWindowTitle)
+            && CFStringFindWithOptions((CFStringRef)currentWindowTitle, blankMonitorWindowGenericTitle, CFRangeMake(0, CFStringGetLength((CFStringRef)currentWindowTitle)), kCFCompareCaseInsensitive, NULL)
+        ) {
             useOptimizedScreenCaptureMethod = false;
             break;
         }
     }
 
-    CFRelease(dictionariesOfWindowInfo);
-    CFRelease(blankWindowGenericTitle);
     CFRelease(windowTitleKeyName);
+    CFRelease(blankMonitorWindowGenericTitle);
+    CFRelease(dictionariesOfWindowInfo);
 
     JNI_COCOA_EXIT(env);
 
