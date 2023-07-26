@@ -265,7 +265,9 @@ Java_sun_lwawt_macosx_CRobot_mouseEvent
     // HACK use deprecated CGPostMouseEvent at login window because CGEventCreateMouseEvent/CGEventPost doesn't work
     CFDictionaryRef sessionInfoDictionary = CGSessionCopyCurrentDictionary();
     if (sessionInfoDictionary != NULL && CFDictionaryGetValue(sessionInfoDictionary, kCGSessionLoginDoneKey) == kCFBooleanFalse)
-        CGPostMouseEvent(point, TRUE, 3, leftButtonDown, rightButtonDown, centerButtonDown); // Ignore extra buttons because can't make array into varargs
+        [ThreadUtilities performOnMainThreadWaiting:YES block:^(){
+            CGPostMouseEvent(point, TRUE, 3, leftButtonDown, rightButtonDown, centerButtonDown); // Ignore extra buttons because can't make array into varargs
+        }];
     else
         PostMouseEvent(point, button, type, clickCount, eventNumber);
 
